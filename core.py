@@ -56,6 +56,8 @@ def retrieve(chunks, question, top_k=4):
 
 
 def answer(client, model, question, hits, language):
+    if not hits:
+        raise CitationError("No source passages available")
     context = "\n\n".join(f"[p. {chunk.page}] {chunk.text}" for chunk, _ in hits)
     response = client.responses.create(
         model=model,
@@ -68,4 +70,42 @@ def answer(client, model, question, hits, language):
         ),
         input=f"QUESTION:\n{question}\n\nDOCUMENT EXCERPTS:\n{context}",
     )
-    return response.output_text
+    return validate_citations(response.output_text, hits)
+
+
+class CitationError(ValueError):
+    """Generated text cannot be presented with valid page references."""
+
+
+def validate_citations(text, hits):
+    """Check reference membership, not whether evidence entails every claim."""
+    cited = {int(n) for n in re.findall(r"\[p\.\s*(\d+)\]", text)}
+    allowed = {chunk.page for chunk, _ in hits}
+    if not text.strip() or not cited or not cited <= allowed:
+        raise CitationError("Answer has missing or unsupported page references")
+    return text
+
+
+def source_pdf(data, pages):
+    """Export source pages in original order; caller supplies original numbers."""
+    from pypdf import PdfWriter
+    reader = PdfReader(BytesIO(data))
+    selected = sorted(set(pages))
+    if not selected or any(type(p) is not int or not 1 <= p <= len(reader.pages) for p in selected):
+        raise ValueError("Invalid source pages")
+    writer = PdfWriter()
+    for page in selected:
+        writer.add_page(reader.pages[page - 1])
+    output = BytesIO()
+    writer.write(output)
+    return output.getvalue()
+
+
+def export_report(filename, question, answer_text, hits):
+    import json
+    return json.dumps({
+        "document": filename, "question": question,
+        "answer": answer_text or None,
+        "notice": "Page references identify retrieved sources, not verified factual correctness. Page numbers are 1-based PDF positions.",
+        "sources": [{"page": c.page, "text": c.text, "similarity": score} for c, score in hits],
+    }, ensure_ascii=False, indent=2)
