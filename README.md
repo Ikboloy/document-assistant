@@ -10,7 +10,10 @@ Upload a text-based PDF, find relevant passages, and optionally generate an Engl
 - Page-preserving text extraction and overlapping chunks
 - Local source search without an API key
 - Optional OpenAI Responses API generation, with sources visible beside the answer
-- Docker packaging and automated core tests
+- Page-reference validation: missing or out-of-context references withhold the AI answer
+- Download original source pages as PDF and answers with evidence as JSON
+- Session-scoped results survive download reruns; replacing/removing a document clears results
+- Docker packaging and automated core/UI workflow tests
 
 ## Run locally
 
@@ -37,6 +40,7 @@ docker run --rm -p 8501:8501 document-assistant
 2. Ask “When do applications close?”
 3. Review the returned source passage and original page number.
 4. Enable AI generation to receive a natural-language answer; choosing Korean controls the answer language.
+5. Download the source PDF pages to inspect the original layout, or save the answer and excerpts as JSON. Exported pages follow original order; their original numbers are listed in the filename.
 
 For Korean PDFs, try a question such as `신청 마감일은 언제인가요?`. These are illustrative examples, not measured benchmark results.
 
@@ -54,12 +58,12 @@ Uploads are processed in memory by the application, with no app-level file persi
 - Layout extraction, tables and mixed reading order may be imperfect.
 - Retrieval is lexical, not semantic; cross-language search is not supported in this version.
 - Similarity scores are not confidence probabilities. Any nonzero match can appear.
-- AI citations and abstention are prompted, not formally verified; check the passages.
+- Citations in `[p. N]` format are checked against retrieved page numbers. This checks reference membership only, not factual correctness or support for every claim. Missing citations (including uncited abstentions) withhold the response; sources remain visible.
 - No claim of measured accuracy, production readiness or a live deployment.
 
 ## Next steps
 
-Add multilingual embeddings with an evaluated English/Korean query set, OCR, citation validation, and retrieval metrics before introducing agents or MCP into the application itself. GitHub MCP is used to publish this project; it is not a runtime feature of the app.
+Add multilingual embeddings with an evaluated English/Korean query set, OCR, claim-level evidence validation, and retrieval metrics before introducing agents or MCP into the application itself. GitHub MCP is used to publish this project; it is not a runtime feature of the app.
 
 ## References
 
@@ -67,3 +71,7 @@ Add multilingual embeddings with an evaluated English/Korean query set, OCR, cit
 - [Streamlit](https://docs.streamlit.io/)
 - [pypdf](https://pypdf.readthedocs.io/)
 - [scikit-learn TF-IDF](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html)
+
+## Validation of this update
+
+Run `python -m unittest discover -s tests -v` from the repository root. Ten tests cover retrieval, real generated PDF extraction and source-page export, missing/unknown references, no-evidence provider bypass, JSON export, and Streamlit session/download workflows. UI workflows use Streamlit AppTest with a mocked uploader; provider responses are mocked. A live paid model call, browser visual review, and Docker execution were not performed for this update.
