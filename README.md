@@ -75,3 +75,13 @@ Add multilingual embeddings with an evaluated English/Korean query set, OCR, cla
 ## Validation of this update
 
 Run `python -m unittest discover -s tests -v` from the repository root. Ten tests cover retrieval, real generated PDF extraction and source-page export, missing/unknown references, no-evidence provider bypass, JSON export, and Streamlit session/download workflows. UI workflows use Streamlit AppTest with a mocked uploader; provider responses are mocked. A live paid model call, browser visual review, and Docker execution were not performed for this update.
+
+## Offline retrieval evaluation
+
+Run `python evaluate.py` to print a reproducible JSON report without an API key. The hand-authored fixture contains six English/Korean source pages, six answerable questions and two unanswerable questions. It uses the existing lexical retriever unchanged.
+
+The report includes page recall, page precision and reciprocal rank averaged across answerable questions. Repeated chunks from the same page count only once. `top_k_chunks` limits chunks before page deduplication. `unanswerable_retrieval_rate` is the fraction of unanswerable questions that still return passages; lower is better. This reveals false matches instead of treating them as correct answers.
+
+This is a small synthetic smoke benchmark, not independent evaluation, real-world accuracy, multilingual semantic understanding or a test of generated answer correctness. Add independently labeled real documents before drawing quality conclusions. Three additional unit tests check metric arithmetic, duplicate handling, empty rankings and report structure.
+
+Measured on this fixture with scikit-learn 1.8.0: mean page recall 1.00, mean reciprocal rank 1.00, mean page precision 0.333, and unanswerable retrieval rate 1.00 (2/2). The retriever ranks the expected page first for these six answerable queries but still returns unrelated passages, including for both unanswerable queries. This is a documented limitation, not evidence of reliable abstention.
