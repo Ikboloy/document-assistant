@@ -1,4 +1,14 @@
-# Document Assistant · English & Korean
+# Document Assistant · PDF retrieval with source evidence
+
+[![Core tests](https://github.com/Ikboloy/document-assistant/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Ikboloy/document-assistant/actions/workflows/tests.yml)
+
+**Purpose:** help readers find answers in text PDFs while keeping original page evidence visible.
+
+![Document Assistant browser adaptation](docs/screenshots/browser-preview.jpg)
+
+*Screenshot: local preview of the separately hosted browser adaptation, in its initial state. The Python Streamlit app in this repository has a different UI and an English/Korean interface. The browser adaptation adds English/Korean/Uzbek UI selection and uses a different lexical search implementation. It is owner-private, so it is not advertised as a public demo.*
+
+**Start here:** [Run locally](#run-locally) · [Evaluation](#offline-retrieval-evaluation) · [Limitations](#privacy-and-limits)
 
 A PDF question-answering portfolio project by **Sobirova Ikboloy**, Computer Engineering graduate of Keimyung University.
 
@@ -59,7 +69,7 @@ Uploads are processed in memory by the application, with no app-level file persi
 - Retrieval is lexical, not semantic; cross-language search is not supported in this version.
 - Similarity scores are not confidence probabilities. Any nonzero match can appear.
 - Citations in `[p. N]` format are checked against retrieved page numbers. This checks reference membership only, not factual correctness or support for every claim. Missing citations (including uncited abstentions) withhold the response; sources remain visible.
-- No claim of measured accuracy, production readiness or a live deployment.
+- The offline retrieval benchmark below measures a small synthetic fixture, not generated-answer accuracy or production readiness. The separately hosted browser adaptation is not a deployment of this Python source.
 
 ## Next steps
 
@@ -74,7 +84,7 @@ Add multilingual embeddings with an evaluated English/Korean query set, OCR, cla
 
 ## Validation of this update
 
-Run `python -m unittest discover -s tests -v` from the repository root. Ten tests cover retrieval, real generated PDF extraction and source-page export, missing/unknown references, no-evidence provider bypass, JSON export, and Streamlit session/download workflows. UI workflows use Streamlit AppTest with a mocked uploader; provider responses are mocked. A live paid model call, browser visual review, and Docker execution were not performed for this update.
+Run `python -m unittest discover -s tests -v` from the repository root. Thirteen tests cover retrieval, real generated PDF extraction and source-page export, missing/unknown references, no-evidence provider bypass, JSON export, Streamlit session/download workflows, and retrieval-evaluation arithmetic. UI workflows use Streamlit AppTest with a mocked uploader; provider responses are mocked. A live paid model call, browser visual review, and Docker execution were not performed for this update.
 
 ## Offline retrieval evaluation
 
