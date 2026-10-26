@@ -1,5 +1,6 @@
 """Apply the local schema and track it in Hasura; smoke-test CRUD and auth."""
 import json
+import http.client
 from pathlib import Path
 import sys
 import time
@@ -30,7 +31,7 @@ def setup():
         try:
             request("/healthz")
             break
-        except (urllib.error.URLError, TimeoutError):
+        except (OSError, http.client.HTTPException):
             if attempt == 59:
                 raise
             time.sleep(2)
