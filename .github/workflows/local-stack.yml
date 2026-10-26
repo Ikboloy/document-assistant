@@ -21,6 +21,7 @@ jobs:
       - name: Verify repeatable setup
         run: python scripts/local_stack.py setup
       - run: python scripts/local_stack.py smoke
+      - run: python scripts/catalog_smoke.py
       - name: Verify Streamlit responds
         run: curl --fail --retry 20 --retry-all-errors --retry-delay 3 http://127.0.0.1:8501/_stcore/health
       - name: Clean up disposable CI database

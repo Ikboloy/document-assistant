@@ -98,4 +98,4 @@ Measured on this fixture with scikit-learn 1.8.0: mean page recall 1.00, mean re
 
 ## PostgreSQL + Hasura learning lab
 
-See [local stack setup and exercises](docs/local-stack.md) for Docker Compose, a persistent document-title catalog, GraphQL examples and automated integration checks. This is an independent admin-only local foundation; the Streamlit PDF workflow is not yet connected to the database. AWS deployment and user authentication are future milestones.
+See [local stack setup and exercises](docs/local-stack.md) for Docker Compose, a persistent document-title catalog, GraphQL examples and automated integration checks. The Streamlit app can now explicitly save, list and delete document titles through Hasura. Only titles and language are persisted; PDFs, questions and answers remain in memory. This is a single-user local lab, not a public multi-user deployment. AWS deployment and user authentication are future milestones.

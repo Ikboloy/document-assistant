@@ -2,8 +2,13 @@
 
 This is step 1 of the cloud learning track. Docker Compose runs the existing
 Streamlit app, PostgreSQL 16 and Hasura GraphQL Engine v2.51.1.
-The Streamlit upload flow is still in-memory: it does NOT yet save PDFs or
-answers in PostgreSQL. The new catalog is exercised independently via GraphQL.
+Streamlit now offers an opt-in title catalog via server-side Hasura requests.
+Upload a readable PDF, expand Saved document titles, choose a title and tick the
+save checkbox. Only title and selected UI language are saved. PDF bytes,
+questions and answers remain in memory. Saved titles cannot reopen a PDF.
+The catalog can be listed/deleted even without an uploaded PDF. Deletion requires
+an explicit confirmation checkbox. Saving twice for the same upload session
+updates the same row; re-uploading in a new session may create a new entry.
 
 ## Start (Windows, macOS, Linux)
 
@@ -58,8 +63,11 @@ statement will not upgrade an existing table.
 - Do not deploy this development configuration publicly. Authentication,
   per-user authorization, backups, TLS and limits remain future work.
 - AWS resources and paid AI calls are not created by these commands.
-- App and database currently run independently; AI works through the existing
-  optional provider flow. This is not yet a complete persistent RAG service.
+- The server-side app uses the Hasura admin secret in this loopback-only,
+  single-user lab. Do not expose the Streamlit port publicly: all sessions would
+  share catalog access. User login and isolation are not implemented.
+- AI uses the existing optional provider flow; PDF retrieval remains in memory.
+- Run `python scripts/catalog_smoke.py` to test the actual application client.
 
 ## Your first exercise
 
@@ -72,7 +80,7 @@ statement will not upgrade an existing table.
 
 ## Next milestones
 
-1. Connect app-side persistence with a clear opt-in and document deletion.
+1. Extend the title catalog to opt-in PDF storage with a migration and retention plan.
 2. Add verified login and per-user Hasura permissions with isolation tests.
 3. Add evaluated embeddings and source-backed answers.
 4. Plan AWS S3/RDS/compute and budget before provisioning.
