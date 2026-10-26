@@ -19,7 +19,7 @@ class CatalogUITests(unittest.TestCase):
         self.assertFalse(app.exception)
         app.button[0].click().run()
         save.assert_not_called()
-        app.checkbox[0].check().run()
+        app.checkbox[0].check()
         app.button[0].click().run()
         save.assert_called_once()
         first_id = save.call_args.args[2]
@@ -33,6 +33,6 @@ class CatalogUITests(unittest.TestCase):
         app = AppTest.from_string('from catalog_ui import render_catalog\nrender_catalog(lambda en, ko: en)').run()
         app.button[0].click().run()
         delete.assert_not_called()
-        app.checkbox[0].check().run()
+        app.checkbox[0].check()
         app.button[0].click().run()
         delete.assert_called_once_with("00000000-0000-0000-0000-000000000001")
