@@ -1,0 +1,29 @@
+name: PostgreSQL and Hasura integration
+on:
+  push:
+    branches: [main, feature/postgres-hasura-foundation]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/init_local.py
+      - run: docker compose config --quiet
+      - run: docker compose up -d --build
+      - run: python scripts/local_stack.py setup
+      - name: Verify repeatable setup
+        run: python scripts/local_stack.py setup
+      - run: python scripts/local_stack.py smoke
+      - run: python scripts/catalog_smoke.py
+      - name: Verify Streamlit responds
+        run: curl --fail --retry 20 --retry-all-errors --retry-delay 3 http://127.0.0.1:8501/_stcore/health
+      - name: Clean up disposable CI database
+        if: always()
+        run: docker compose down -v

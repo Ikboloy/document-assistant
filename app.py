@@ -1,5 +1,6 @@
 import os
 import hashlib
+from catalog_ui import render_catalog
 import streamlit as st
 from core import CitationError, answer, read_pdf, retrieve, source_pdf, export_report
 
@@ -21,6 +22,7 @@ uploaded = st.file_uploader(t("Upload a text-based PDF (20 MB / 100 pages max)",
 if not uploaded:
     st.session_state.pop("document", None)
     st.session_state.pop("result", None)
+    render_catalog(t)
 if uploaded:
     data = uploaded.getvalue()
     digest = hashlib.sha256(data).hexdigest()
@@ -33,6 +35,7 @@ if uploaded:
         st.error(t("Could not read this PDF. Use an unencrypted, text-based PDF within the size/page limits. Scanned PDFs require OCR.", "PDF를 읽을 수 없습니다. 용량/페이지 제한 이내의 암호화되지 않은 텍스트 PDF를 사용하세요. 스캔 PDF에는 OCR이 필요합니다."))
         st.stop()
     st.success(t(f"Ready: {len(chunks)} text chunks", f"준비 완료: 텍스트 조각 {len(chunks)}개"))
+    render_catalog(t, st.session_state["document"], uploaded.name, "ko" if ko else "en")
     with st.form("question"):
         question = st.text_input(t("Ask a question", "질문을 입력하세요"), max_chars=2000)
         submitted = st.form_submit_button(t("Find answer", "답변 찾기"))
