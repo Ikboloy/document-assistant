@@ -95,3 +95,7 @@ The report includes page recall, page precision and reciprocal rank averaged acr
 This is a small synthetic smoke benchmark, not independent evaluation, real-world accuracy, multilingual semantic understanding or a test of generated answer correctness. Add independently labeled real documents before drawing quality conclusions. Three additional unit tests check metric arithmetic, duplicate handling, empty rankings and report structure.
 
 Measured on this fixture with scikit-learn 1.8.0: mean page recall 1.00, mean reciprocal rank 1.00, mean page precision 0.333, and unanswerable retrieval rate 1.00 (2/2). The retriever ranks the expected page first for these six answerable queries but still returns unrelated passages, including for both unanswerable queries. This is a documented limitation, not evidence of reliable abstention.
+
+## PostgreSQL + Hasura learning lab
+
+See [local stack setup and exercises](docs/local-stack.md) for Docker Compose, a persistent document-title catalog, GraphQL examples and automated integration checks. This is an independent admin-only local foundation; the Streamlit PDF workflow is not yet connected to the database. AWS deployment and user authentication are future milestones.

@@ -1,0 +1,35 @@
+name: document-assistant
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8501:8501"
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: assistant
+      POSTGRES_DB: assistant
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run python scripts/init_local.py first}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assistant -d assistant"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  hasura:
+    image: hasura/graphql-engine:v2.51.1
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://assistant:${POSTGRES_PASSWORD}@postgres:5432/assistant
+      PG_DATABASE_URL: postgres://assistant:${POSTGRES_PASSWORD}@postgres:5432/assistant
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET:?Run python scripts/init_local.py first}
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "false"
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
+volumes:
+  postgres_data:
